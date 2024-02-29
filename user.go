@@ -3,6 +3,7 @@ package imapsql
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -179,6 +180,7 @@ func (u *User) SetMessageLimit(val *uint32) error {
 }
 
 func (u *User) CreateMailbox(name string) error {
+	u.parent.logUserErr(u, fmt.Errorf("JKY"), "CreateMailbox (tx start)", name)
 	tx, err := u.parent.db.Begin(false)
 	if err != nil {
 		u.parent.logUserErr(u, err, "CreateMailbox (tx start)", name)

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"database/sql"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"time"
@@ -95,7 +96,9 @@ func (d *Delivery) Mailbox(name string) error {
 	}
 
 	for _, u := range d.users {
+		u.parent.logUserErr(&u, fmt.Errorf("JKY"), "Checking override for normal mbox", name)
 		if mboxName := d.mboxOverrides[u.username]; mboxName != "" {
+			u.parent.logUserErr(&u, fmt.Errorf("JKY"), "Found override", mboxName)
 			_, mbox, err := u.GetOrCreateMailbox(mboxName, true, nil)
 			if err == nil {
 				d.mboxes = append(d.mboxes, *mbox.(*Mailbox))
@@ -127,7 +130,9 @@ func (d *Delivery) SpecialMailbox(attribute, fallbackName string) error {
 		d.mboxes = make([]Mailbox, 0, len(d.users))
 	}
 	for _, u := range d.users {
+		u.parent.logUserErr(&u, fmt.Errorf("JKY"), "Checking override for special mbox", attribute)
 		if mboxName := d.mboxOverrides[u.username]; mboxName != "" {
+			u.parent.logUserErr(&u, fmt.Errorf("JKY"), "Found override", mboxName)
 			_, mbox, err := u.GetOrCreateMailbox(mboxName, true, nil)
 			if err == nil {
 				d.mboxes = append(d.mboxes, *mbox.(*Mailbox))
